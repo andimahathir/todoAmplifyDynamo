@@ -4,7 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { Amplify, API, graphqlOperation } from "aws-amplify";
 import { listTodos } from "./graphql/queries";
-import { createTodo, deleteTodo } from "./graphql/mutations";
+import { createTodo, deleteTodo, updateTodo } from "./graphql/mutations";
 
 import awsExports from "./aws-exports";
 Amplify.configure(awsExports);
@@ -68,15 +68,30 @@ function App() {
         }
     }
 
-    function ToggleTodo(id) {
-        setTodos(
-            todos.map((todo) => {
-                if (todo.id === id) {
-                    todo.completed = !todo.completed;
-                }
-                return todo;
-            }),
-        );
+    async function ToggleTodo(id) {
+        const toggleTodo = todos.filter((todo) => todo.id === id);
+        if (toggleTodo.length === 1) {
+            const targetToggle = {
+                id: toggleTodo[0].id,
+                completed: !toggleTodo[0].completed,
+            };
+            try {
+                const toggledTodo = await API.graphql(
+                    graphqlOperation(updateTodo, { input: targetToggle }),
+                );
+                setTodos(
+                    todos.map((todo) => {
+                        if (todo.id === toggledTodo.data.updateTodo.id) {
+                            todo.completed =
+                                toggledTodo.data.updateTodo.completed;
+                        }
+                        return todo;
+                    }),
+                );
+            } catch (error) {
+                console.log("error updating todo:", error);
+            }
+        }
     }
 
     return (
