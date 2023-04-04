@@ -14,6 +14,12 @@
     "categories": {
       "api": {
         "todoamplifydynamo": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d21v4qpc07uw8g",
+          "type": "manual"
+        }
       }
     }
   }
