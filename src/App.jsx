@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import { Amplify, API, graphqlOperation } from "aws-amplify";
 import { listTodos } from "./graphql/queries";
+import { createTodo } from "./graphql/mutations";
+
+import awsExports from "./aws-exports";
+Amplify.configure(awsExports);
 
 function App() {
     const [activity, setActivity] = useState("");
@@ -14,21 +19,32 @@ function App() {
 
     async function fetchTodos() {
         try {
-            const todoData = await API.graphql(graphqlOperation(listTodos));
-            const todosData = todoData.data.listTodos.items;
-            setTodos(todosData);
-        } catch (err) {
-            console.log("error fetching todos");
+            const todosData = await API.graphql(graphqlOperation(listTodos));
+            const todosItems = todosData.data.listTodos.items;
+            setTodos(todosItems);
+        } catch (error) {
+            console.log("error fetching todos", error);
         }
     }
 
-    function addTodo(event) {
+    async function addTodo(event) {
         event.preventDefault();
-        setTodos([
-            ...todos,
-            { id: Date.now(), title: activity, completed: false },
-        ]);
-        setActivity("");
+        if (activity !== "") {
+            try {
+                const todo = {
+                    id: Date.now(),
+                    title: activity,
+                    completed: false,
+                };
+                setTodos([...todos, todo]);
+                console.log(
+                    await API.graphql(
+                        graphqlOperation(createTodo, { input: todo }),
+                    ),
+                );
+            } catch (error) {}
+            setActivity("");
+        }
     }
 
     function deleteTodo(id) {
