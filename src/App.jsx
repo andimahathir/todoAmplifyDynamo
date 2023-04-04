@@ -4,7 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { Amplify, API, graphqlOperation } from "aws-amplify";
 import { listTodos } from "./graphql/queries";
-import { createTodo } from "./graphql/mutations";
+import { createTodo, deleteTodo } from "./graphql/mutations";
 
 import awsExports from "./aws-exports";
 Amplify.configure(awsExports);
@@ -14,10 +14,10 @@ function App() {
     const [todos, setTodos] = useState([]);
 
     useEffect(() => {
-        fetchTodos();
+        FetchTodos();
     }, []);
 
-    async function fetchTodos() {
+    async function FetchTodos() {
         try {
             const todosData = await API.graphql(graphqlOperation(listTodos));
             const todosItems = todosData.data.listTodos.items;
@@ -27,7 +27,7 @@ function App() {
         }
     }
 
-    async function addTodo(event) {
+    async function AddTodo(event) {
         event.preventDefault();
         if (activity !== "") {
             try {
@@ -36,22 +36,39 @@ function App() {
                     title: activity,
                     completed: false,
                 };
-                setTodos([...todos, todo]);
-                console.log(
-                    await API.graphql(
-                        graphqlOperation(createTodo, { input: todo }),
-                    ),
+                const newTodo = await API.graphql(
+                    graphqlOperation(createTodo, { input: todo }),
                 );
-            } catch (error) {}
+                setTodos([...todos, newTodo.data.createTodo]);
+            } catch (error) {
+                console.log("error creating todo:", error);
+            }
             setActivity("");
         }
     }
 
-    function deleteTodo(id) {
-        setTodos(todos.filter((todo) => todo.id !== id));
+    async function DestroyTodo(id) {
+        const destroyTodo = todos.filter((todo) => todo.id === id);
+        if (destroyTodo.length === 1) {
+            const targetDestroy = {
+                id: destroyTodo[0].id,
+            };
+            try {
+                const destroyedTodo = await API.graphql(
+                    graphqlOperation(deleteTodo, { input: targetDestroy }),
+                );
+                setTodos(
+                    todos.filter(
+                        (todo) => todo.id !== destroyedTodo.data.deleteTodo.id,
+                    ),
+                );
+            } catch (error) {
+                console.log("error deleting todo:", error);
+            }
+        }
     }
 
-    function toggleTodo(id) {
+    function ToggleTodo(id) {
         setTodos(
             todos.map((todo) => {
                 if (todo.id === id) {
@@ -78,7 +95,7 @@ function App() {
             </div>
             <h1>ToDo What ToDo</h1>
             <div className="card">
-                <form onSubmit={addTodo}>
+                <form onSubmit={AddTodo}>
                     <input
                         type="text"
                         placeholder="Whatchu gonna do?"
@@ -98,10 +115,10 @@ function App() {
                             <input
                                 type="checkbox"
                                 checked={todo.completed}
-                                onChange={() => toggleTodo(todo.id)}
+                                onChange={() => ToggleTodo(todo.id)}
                             />
                             {todo.completed ? <s>{todo.title}</s> : todo.title}
-                            <button onClick={() => deleteTodo(todo.id)}>
+                            <button onClick={() => DestroyTodo(todo.id)}>
                                 x
                             </button>
                         </li>
