@@ -55,6 +55,14 @@ button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
+li input[type="checkbox"] {
+    margin: 0.5em;
+}
+
+li button {
+    margin: 0.5em;
+}
+
 ul.no-bullets {
     list-style-type: none; /* Remove bullets */
     padding: 0; /* Remove padding */
