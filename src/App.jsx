@@ -9,13 +9,15 @@ function App() {
 
     function addTodo(event) {
         event.preventDefault();
-
         setTodos([
             ...todos,
             { id: Date.now(), title: activity, completed: false },
         ]);
-
         setActivity("");
+    }
+
+    function deleteTodo(id) {
+        setTodos(todos.filter((todo) => todo.id !== id));
     }
 
     return (
@@ -47,8 +49,13 @@ function App() {
             <div className="card">
                 <h2>Task(s) ToDo</h2>
                 <ul className="no-bullets">
-                    {todos.map((todo, index) => (
-                        <li key={index}>{todo.title}</li>
+                    {todos.map((todo) => (
+                        <li key={todo.id}>
+                            {todo.title}
+                            <button onClick={() => deleteTodo(todo.id)}>
+                                x
+                            </button>
+                        </li>
                     ))}
                 </ul>
             </div>
