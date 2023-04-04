@@ -1,11 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import { listTodos } from "./graphql/queries";
 
 function App() {
     const [activity, setActivity] = useState("");
     const [todos, setTodos] = useState([]);
+
+    useEffect(() => {
+        fetchTodos();
+    }, []);
+
+    async function fetchTodos() {
+        try {
+            const todoData = await API.graphql(graphqlOperation(listTodos));
+            const todosData = todoData.data.listTodos.items;
+            setTodos(todosData);
+        } catch (err) {
+            console.log("error fetching todos");
+        }
+    }
 
     function addTodo(event) {
         event.preventDefault();
