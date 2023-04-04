@@ -58,7 +58,9 @@ function App() {
                 </form>
             </div>
             <div className="card">
-                <h2>Task(s) ToDo</h2>
+                {todos.length === 0 && <h2>No Task ToDo</h2>}
+                {todos.length === 1 && <h2>A Task ToDo</h2>}
+                {todos.length > 1 && <h2>{todos.length} Tasks ToDo</h2>}
                 <ul className="no-bullets">
                     {todos.map((todo) => (
                         <li key={todo.id}>
