@@ -20,6 +20,17 @@ function App() {
         setTodos(todos.filter((todo) => todo.id !== id));
     }
 
+    function toggleTodo(id) {
+        setTodos(
+            todos.map((todo) => {
+                if (todo.id === id) {
+                    todo.completed = !todo.completed;
+                }
+                return todo;
+            }),
+        );
+    }
+
     return (
         <div className="App">
             <div>
@@ -51,7 +62,12 @@ function App() {
                 <ul className="no-bullets">
                     {todos.map((todo) => (
                         <li key={todo.id}>
-                            {todo.title}
+                            <input
+                                type="checkbox"
+                                checked={todo.completed}
+                                onChange={() => toggleTodo(todo.id)}
+                            />
+                            {todo.completed ? <s>{todo.title}</s> : todo.title}
                             <button onClick={() => deleteTodo(todo.id)}>
                                 x
                             </button>
