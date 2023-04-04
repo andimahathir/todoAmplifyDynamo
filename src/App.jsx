@@ -50,7 +50,7 @@ function App() {
                 <form onSubmit={addTodo}>
                     <input
                         type="text"
-                        placeholder="What you gonna do?"
+                        placeholder="Whatchu gonna do?"
                         value={activity}
                         onChange={(event) => setActivity(event.target.value)}
                     />
